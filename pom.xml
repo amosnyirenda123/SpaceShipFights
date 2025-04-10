@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.aen</groupId>
-    <artifactId>Asteriods</artifactId>
+    <artifactId>SpaceShipFights</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Asteriods</name>
+    <name>SpaceShipFights</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -149,7 +149,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.aen.asteriods/com.aen.asteriods.HelloApplication</mainClass>
+                            <mainClass>com.aen.asteriods/com.aen.spaceship_fights.HelloApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
