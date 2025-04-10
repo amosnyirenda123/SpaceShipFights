@@ -32,7 +32,27 @@ public class GameEntityFactory implements EntityFactory {
     public Entity newPlayer(SpawnData data) {
         return entityBuilder(data)
                 .type(EntityType.PLAYER)
-                .viewWithBBox(texture("cc.png", 200, 200))
+                .viewWithBBox("player.png")
+                .with(new PlayerComponent())
+                .collidable()
+                .build();
+    }
+
+    @Spawns("fff")
+    public Entity newFFFPlane(SpawnData data) {
+        return entityBuilder(data)
+                .type(EntityType.FFF)
+                .viewWithBBox(texture("fff.png", 130, 130))
+                .with(new PlayerComponent())
+                .collidable()
+                .build();
+    }
+
+    @Spawns("cc")
+    public Entity newCCPlane(SpawnData data) {
+        return entityBuilder(data)
+                .type(EntityType.CC)
+                .viewWithBBox(texture("cc.png", 130, 130))
                 .with(new PlayerComponent())
                 .collidable()
                 .build();

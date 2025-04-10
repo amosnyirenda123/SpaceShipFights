@@ -3,6 +3,7 @@ package com.aen.spaceship_fights;
 import com.aen.spaceship_fights.database.Db;
 import com.aen.spaceship_fights.ui.MenuButton;
 import com.aen.spaceship_fights.ui.ScoreBoardUI;
+import com.aen.spaceship_fights.utils.Selection;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
 import javafx.geometry.Insets;
@@ -252,7 +253,11 @@ public class MainMenu extends FXGLMenu {
                 Db db = new Db();
                 boolean success = db.loginUser(fieldEmail.getText(), fieldPassword.getText());
 
+
+
                 if(success) {
+                    String username = db.getUsernameByEmail(fieldEmail.getText());
+                    Selection.setUsername(username);
                     getMenuContent();
                 }else{
                     //Show some error
@@ -304,6 +309,8 @@ public class MainMenu extends FXGLMenu {
         Image plane2 = new Image(getClass().getResource("/assets/textures/fighter.png").toExternalForm());
         Image plane3 = new Image(getClass().getResource("/assets/textures/DurrrSpaceShip.png").toExternalForm());
         Image plane4 = new Image(getClass().getResource("/assets/textures/ppp.png").toExternalForm());
+        Image plane5 = new Image(getClass().getResource(("/assets/textures/fff.png")).toExternalForm());
+        Image plane6 = new Image(getClass().getResource("/assets/textures/cc.png").toExternalForm());
 
 
         // Create ImageViews
@@ -311,11 +318,13 @@ public class MainMenu extends FXGLMenu {
         ImageView imageView2 = new ImageView(plane2);
         ImageView imageView3 = new ImageView(plane3);
         ImageView imageView4 = new ImageView(plane4);
+        ImageView imageView5 = new ImageView(plane5);
+        ImageView imageView6 = new ImageView(plane6);
 
 
         double imageSize = 100;
-        ImageView[] imageViews = {imageView1, imageView2, imageView3, imageView4};
-        String[] planeNames = {"player", "fighter", "durrrSpaceShip", "PPP"};
+        ImageView[] imageViews = {imageView1, imageView2, imageView3, imageView4, imageView5, imageView6};
+        String[] planeNames = {"player", "fighter", "durrrSpaceShip", "PPP", "fff", "cc"};
 
 
 
@@ -330,6 +339,8 @@ public class MainMenu extends FXGLMenu {
                 case "fighter" -> "Name: Fighter X\nPower: 95\nSpeed: Fast\nAgility: Medium";
                 case "durrrSpaceShip" -> "Name: Durrr SpaceShip\nPower: 70\nSpeed: Slow\nAgility: High\nShield: Ultra";
                 case "PPP" -> "Name: Phantom PPP\nPower: 85\nSpeed: Very Fast\nAgility: Low";
+                case "fff" -> "Name: Filip Fine Fighter X\nSpeed: Medium\nAgility: High";
+                case "cc" ->"Name: Crash Criminal\nSpeed: Medium\nAgility: High";
                 default -> "Unknown";
             };
 
@@ -352,7 +363,7 @@ public class MainMenu extends FXGLMenu {
 
 
             imgView.setOnMouseClicked(event -> {
-                planeChoice = planeName;
+                Selection.setPlaneName(planeName);
                 highlightSelection(imgView, imageViews);
             });
 
@@ -360,7 +371,7 @@ public class MainMenu extends FXGLMenu {
         }
 
 
-        HBox imageBox = new HBox(60, imageView1, imageView2, imageView3, imageView4);
+        HBox imageBox = new HBox(60, imageView1, imageView2, imageView3, imageView4, imageView5, imageView6);
         imageBox.setAlignment(Pos.CENTER);
 
         HBox buttonBox = new HBox(30,
@@ -382,13 +393,13 @@ public class MainMenu extends FXGLMenu {
         var fieldFirstName = new TextField();
         fieldFirstName.setPromptText("Enter your first name");
         fieldFirstName.setStyle("""
-    -fx-background-color: #1e1e1e;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: gray;
-    -fx-background-radius: 5;
-    -fx-font-size: 16px;
-    -fx-pref-height: 40px;
-""");
+         -fx-background-color: #1e1e1e;
+         -fx-text-fill: white;
+         -fx-prompt-text-fill: gray;
+         -fx-background-radius: 5;
+         -fx-font-size: 16px;
+         -fx-pref-height: 40px;
+        """);
 
         var fieldLastName = new TextField();
         fieldLastName.setPromptText("Enter your last name");

@@ -7,6 +7,7 @@ import com.aen.spaceship_fights.levels.Level1;
 import com.aen.spaceship_fights.networking.Client;
 import com.aen.spaceship_fights.networking.NetworkManager;
 import com.aen.spaceship_fights.networking.Server;
+import com.aen.spaceship_fights.utils.Selection;
 import com.aen.spaceship_fights.utils.UserData;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
@@ -143,25 +144,24 @@ public class SpaceShipFightsApp extends GameApplication {
 
         getGameWorld().addEntityFactory(new GameEntityFactory());
         initializeGame();
-//        runOnce(()->{
-//            getDialogService().showInputBox("Enter your name", playerName -> {
-//                currentUserName = playerName;
-//                Label playerNameLabel = new Label("Player: " + currentUserName);
-//                playerNameLabel.setStyle("-fx-text-fill: #fff");
-//                VBox playerNameBox = new VBox(playerNameLabel);
-//                playerNameBox.setStyle("""
-//                        -fx-font-size: 14px;
-//                        -fx-font-weight: bold;
-//                        -fx-background-color: rgba(30, 30, 30, 0.85);
-//                        -fx-text-fill: white;
-//                        -fx-padding: 10;
-//                        -fx-border-color: crimson;
-//                        -fx-border-width: 1px;
-//                        """);
-//                addUINode(playerNameBox, getAppWidth() - 200, 10);
-//                getFileSystemService().writeDataTask(new UserData(playerName), Config.SAVE_USER_INFO).run();
-//            });
-//        }, Duration.seconds(0.2));
+        runOnce(()->{
+
+                currentUserName = Selection.getUsername();
+                Label playerNameLabel = new Label("Player: " + currentUserName);
+                playerNameLabel.setStyle("-fx-text-fill: #fff");
+                VBox playerNameBox = new VBox(playerNameLabel);
+                playerNameBox.setStyle("""
+                        -fx-font-size: 14px;
+                        -fx-font-weight: bold;
+                        -fx-background-color: rgba(30, 30, 30, 0.85);
+                        -fx-text-fill: white;
+                        -fx-padding: 10;
+                        -fx-border-color: crimson;
+                        -fx-border-width: 1px;
+                        """);
+                addUINode(playerNameBox, getAppWidth() - 280, 10);
+
+        }, Duration.seconds(0.2));
 
     }
     private boolean runningFirstTime = true;
@@ -256,13 +256,39 @@ public class SpaceShipFightsApp extends GameApplication {
         });
 
         onCollisionBegin(EntityType.PLAYER, EntityType.ENEMY, (player, enemy) -> {
-            killEnemy(enemy);
-
-            player.setPosition(getAppWidth() / 2.0, getAppHeight() / 2.0);
-
-            inc("lives", -1);
-            inc("enemiesKilled", +1);
+           handlePlayerDeathAndRespawn(enemy);
         });
+
+        onCollisionBegin(EntityType.CC, EntityType.ENEMY, (cc, enemy)->{
+           handlePlayerDeathAndRespawn(enemy);
+        });
+
+        onCollisionBegin(EntityType.PPP, EntityType.ENEMY, (ppp, enemy)->{
+            handlePlayerDeathAndRespawn(enemy);
+        });
+
+        onCollisionBegin(EntityType.FFF, EntityType.ENEMY, (fff, enemy)->{
+            handlePlayerDeathAndRespawn(enemy);
+        });
+
+        onCollisionBegin(EntityType.DURRRSPACESHIP, EntityType.ENEMY, (durr, enemy)->{
+            handlePlayerDeathAndRespawn(enemy);
+        });
+
+        onCollisionBegin(EntityType.FIGHTER, EntityType.ENEMY, (fighter, enemy)->{
+            handlePlayerDeathAndRespawn(enemy);
+        });
+
+
+    }
+
+    public void handlePlayerDeathAndRespawn(Entity enemy){
+        killEnemy(enemy);
+
+        player.setPosition(getAppWidth() / 2.0, getAppHeight() / 2.0);
+
+        inc("lives", -1);
+        inc("enemiesKilled", +1);
     }
 
     private void killEnemy(Entity enemy) {
@@ -274,14 +300,18 @@ public class SpaceShipFightsApp extends GameApplication {
 
     private void handleSpawnPlayer(){
         System.out.println("Player: " + gets("planeChoice"));
-        if(gets("planeChoice").equals("player")){
+        if(Selection.getPlaneName().equals("player")){
             player = spawn("player", 500, 300);
-        }else if(gets("planeChoice").equals("fighter")){
+        }else if(Selection.getPlaneName().equals("fighter")){
             player = spawn("fighter", getAppWidth() / 2.0, getAppHeight() / 2.0);
-        }else if(gets("planeChoice").equals("PPP")){
+        }else if(Selection.getPlaneName().equals("PPP")){
             player = spawn("PPP", getAppWidth() / 2.0, getAppHeight() / 2.0);
-        }else if(gets("planeChoice").equals("durrrSpaceShip")){
+        }else if(Selection.getPlaneName().equals("durrrSpaceShip")){
             player = spawn("durrrSpaceShip", getAppWidth() / 2.0, getAppHeight() / 2.0);
+        }else if(Selection.getPlaneName().equals("fff")){
+            player = spawn("fff", getAppWidth() / 2.0, getAppHeight() / 2.0);
+        }else if(Selection.getPlaneName().equals("cc")){
+            player = spawn("cc", getAppWidth() / 2.0, getAppHeight() / 2.0);
         }
     }
 
@@ -294,10 +324,7 @@ public class SpaceShipFightsApp extends GameApplication {
                 int score = geti("score");
 
                 if(score > highScore) {
-                    getDialogService().showInputBox("High Score! Enter your name", playerName -> {
-                        getFileSystemService().writeDataTask(new SaveData(playerName, score), Config.SAVE_DATA_NAME).run();
-                        getGameController().exit();
-                    });
+                    //TODO: Add score to list of high score
                 }else{
                     getGameController().exit();
                 }
@@ -306,11 +333,6 @@ public class SpaceShipFightsApp extends GameApplication {
         });
     }
 
-    private void askForUserName(){
-        getDialogService().showInputBox("Enter your name", playerName -> {
-            getFileSystemService().writeDataTask(new UserData(playerName), Config.SAVE_USER_INFO).run();
-        });
-    }
 
     @Override
     protected void initUI() {
