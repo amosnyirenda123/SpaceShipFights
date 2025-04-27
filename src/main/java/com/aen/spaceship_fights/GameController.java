@@ -1,6 +1,5 @@
 package com.aen.spaceship_fights;
 
-import com.aen.spaceship_fights.networking.Client;
 import javafx.animation.*;
 import com.almasb.fxgl.app.scene.GameScene;
 import com.almasb.fxgl.app.scene.Viewport;
@@ -39,9 +38,7 @@ public class GameController implements UIController {
 
     }
 
-    public void sendClientMessage(Client client, String message) {
-        client.sendMessage(message);
-    }
+
 
     public HBox displayMessage(String message) {
         Label messageLabel = new Label(message);
@@ -83,15 +80,6 @@ public class GameController implements UIController {
         return messageBox;
     }
 
-
-    public Node receiveClientMessage(Client client) {
-        if (client == null) {
-            Text text = new Text("Loading Messages...");
-            text.setStyle("-fx-color: #fff");
-            return text;
-        }
-        return client.receiveMessage();
-    }
 
     public void loseLife() {
         Texture t = lives.get(lives.size() - 1);
@@ -139,30 +127,6 @@ public class GameController implements UIController {
         gameScene.addUINode(texture);
     }
 
-    private Node chatBox;
-
-    public void toggleChatBox(){
-        Image sendIcon = new Image(getClass().getResource("/assets/chat/message.png").toExternalForm());
-        ImageView imageView = new ImageView(sendIcon);
-        imageView.setFitWidth(32);
-        imageView.setFitHeight(32);
-
-        Button messageButton = new Button();
-        messageButton.setGraphic(imageView);
-        messageButton.setStyle("-fx-background-color: transparent; -fx-padding: 4;");
-        messageButton.setTranslateX(20);
-        messageButton.setTranslateY(120);
-
-        gameScene.addUINode(messageButton);
-        messageButton.setOnAction(e -> {
-            if (chatBox == null) {
-                chatBox = createChatNode();
-                gameScene.addUINode(chatBox);
-            } else {
-                chatBox.setVisible(!chatBox.isVisible());
-            }
-        });
-    }
 
     public Node createChatNode(){
         HBox container = new HBox(10);

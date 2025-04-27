@@ -4,16 +4,18 @@ import com.aen.spaceship_fights.database.Db;
 import com.aen.spaceship_fights.levels.GameLevel;
 import com.aen.spaceship_fights.levels.Level0;
 import com.aen.spaceship_fights.levels.Level1;
-import com.aen.spaceship_fights.networking.Client;
-import com.aen.spaceship_fights.networking.NetworkManager;
-import com.aen.spaceship_fights.networking.Server;
+import com.aen.spaceship_fights.networking.ChatServiceFXGL;
 import com.aen.spaceship_fights.utils.Selection;
 import com.aen.spaceship_fights.utils.UserData;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.core.serialization.Bundle;
+import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
+import com.almasb.fxgl.multiplayer.MultiplayerService;
+import com.almasb.fxgl.net.Connection;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -21,6 +23,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -46,6 +50,7 @@ public class SpaceShipFightsApp extends GameApplication {
     private GameController controller;
     private int highScore;
     private String highScoreName;
+    private Connection<Bundle> connection;
 
     @Override
     protected void initGameVars(Map<String, Object> vars){
@@ -87,58 +92,24 @@ public class SpaceShipFightsApp extends GameApplication {
 
     private List<GameLevel> gameLevelList;
     private ServerSocket serverSocket = null;
-    private Client client = null;
+    private ChatServiceFXGL chatUI = null;
 
     private void connectToDatabase(){
         Db db = new Db();
         db.loadUserTable();
     }
 
-    private void connectToServer() {
-        try {
-            serverSocket = new ServerSocket(Config.PORT_NUMBER);
-            Server server = new Server(serverSocket);
-            server.startServer();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private void startClient() {
-        Socket socket = null;
-        try {
-            socket = new Socket("localhost", Config.PORT_NUMBER);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        client = new Client(socket, currentUserName);
-        NetworkManager.setClient(client);
-        getExecutor().startAsyncFX(()->{
-            addUINode(receiveClientMessage(client), 200, 300);
-        });
-
-
-    }
-
-    public Node receiveClientMessage(Client client) {
-        if (client == null) {
-            Text text = new Text("Loading Messages...");
-            text.setStyle("-fx-color: #fff");
-            return text;
-        }
-        return client.receiveMessage();
-    }
 
     private boolean isServer;
     private String currentUserName;
 
     @Override
     protected void initGame() {
-        loopBGM("bgm.mp3");
+//        loopBGM("bgm.mp3");
         getExecutor().startAsync(this::connectToDatabase);
         getGame();
     }
-
 
     private void getGame(){
 
@@ -244,9 +215,18 @@ public class SpaceShipFightsApp extends GameApplication {
         return gameLevelList.get(geti("level") - 1);
     }
 
+
+
     @Override
     protected void initPhysics() {
         onCollisionBegin(EntityType.BULLET, EntityType.ENEMY, (bullet, enemy) -> {
+            var hp = enemy.getComponent(HealthIntComponent.class);
+
+            if(hp.getValue() > 1){
+                bullet.removeFromWorld();
+                hp.damage(1);
+                return;
+            }
             spawn("scoreText", new SpawnData(enemy.getX(), enemy.getY()).put("text", "+100"));
             killEnemy(enemy);
             bullet.removeFromWorld();
@@ -336,6 +316,30 @@ public class SpaceShipFightsApp extends GameApplication {
 
     @Override
     protected void initUI() {
+
+        chatUI = new ChatServiceFXGL("localhost", Config.PORT_NUMBER);
+
+        chatUI.setTranslateX(20);
+        chatUI.setTranslateY(120);
+
+        getGameScene().addUINode(chatUI);
+
+        Image sendIcon = new Image(getClass().getResource("/assets/chat/message.png").toExternalForm());
+        ImageView imageView = new ImageView(sendIcon);
+        imageView.setFitWidth(32);
+        imageView.setFitHeight(32);
+
+        Button chatButton= new Button();
+        chatButton.setGraphic(imageView);
+        chatButton.setStyle("-fx-background-color: transparent; -fx-padding: 4;");
+
+
+        chatButton.setOnAction(e -> chatUI.toggleVisibility());
+        chatButton.setTranslateX(20);
+        chatButton.setTranslateY(80);
+
+        getGameScene().addUINode(chatButton);
+
         controller = new GameController(getGameScene());
         var text = getUIFactoryService().newText("", 24);
         var killed = getUIFactoryService().newText("", 24);
@@ -368,12 +372,6 @@ public class SpaceShipFightsApp extends GameApplication {
 
         addUINode(text, 20, 30);
         addUINode(killed, 20, 70);
-        controller.toggleChatBox();
-
-
-        addUINode(controller.receiveClientMessage(client), getAppWidth() / 2.5, getAppHeight() - 200);
-
-
 
 
         for(int i = 0; i < geti("lives"); i++){

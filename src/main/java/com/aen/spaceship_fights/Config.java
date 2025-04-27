@@ -4,7 +4,7 @@ public class Config {
     private Config(){}
     public static final String SAVE_DATA_NAME = "./hiscore.dat";
     public static final String SAVE_USER_INFO = "./userinfo.dat";
-    public static final int PORT_NUMBER = 4040;
+    public static final int PORT_NUMBER = 40000;
 
     public static final int WIDTH = 650;
     public static final int HEIGHT = 800;
@@ -20,8 +20,8 @@ public class Config {
 
     public static final int START_LIVES = 3;
 
-    public static final int ENEMIES_PER_ROW = 8;
-    public static final int ENEMY_ROWS = 4;
+    public static final int ENEMIES_PER_ROW = 2;
+    public static final int ENEMY_ROWS = 2;
     public static final int ENEMIES_PER_LEVEL = ENEMIES_PER_ROW * ENEMY_ROWS;
 
     public static final float BONUS_SPAWN_CHANCE = 0.25f;

@@ -7,6 +7,7 @@ import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.components.TimeComponent;
+
 import com.almasb.fxgl.particle.ParticleComponent;
 import com.almasb.fxgl.particle.ParticleEmitters;
 import com.almasb.fxgl.ui.ProgressBar;
@@ -158,6 +159,7 @@ public class GameEntityFactory implements EntityFactory {
                 .with(new OffscreenCleanComponent())
                 .with(new TimeComponent())
                 .with(effectComponent)
+
                 .collidable()
                 .build();
 
