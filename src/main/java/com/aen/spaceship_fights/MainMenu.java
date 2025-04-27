@@ -247,7 +247,7 @@ public class MainMenu extends FXGLMenu {
 
 
 
-
+        //pour se connecter au jeu
         btn.setOnAction(e -> {
             if(!fieldEmail.getText().isEmpty() || !fieldPassword.getText().isEmpty()) {
                 Db db = new Db();

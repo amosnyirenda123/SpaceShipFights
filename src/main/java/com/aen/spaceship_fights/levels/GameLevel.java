@@ -1,5 +1,6 @@
 package com.aen.spaceship_fights.levels;
 
+import com.aen.spaceship_fights.EntityType;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.entity.Entity;
@@ -19,12 +20,11 @@ import java.util.List;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public abstract class GameLevel {
-
+    //TODO: permettre la creation automatique de la base de donnees ainsi que la table des joueurs
     private List<Entity> enemies = new ArrayList<>();
 
     private Pane storyPane = new Pane();
     private Pane rootPane;
-
 
     public GameLevel() {
         var bg = new Rectangle(getAppWidth() - 20, 100, Color.color(0, 0, 0, 0.6));
@@ -60,6 +60,7 @@ public abstract class GameLevel {
     public List<Entity> getEnemies() {
         return enemies;
     }
+
 
     public void playInCutscene(Runnable onFinished) {
         onFinished.run();

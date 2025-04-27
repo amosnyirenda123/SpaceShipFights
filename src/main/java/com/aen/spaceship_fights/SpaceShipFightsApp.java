@@ -1,9 +1,7 @@
 package com.aen.spaceship_fights;
 
 import com.aen.spaceship_fights.database.Db;
-import com.aen.spaceship_fights.levels.GameLevel;
-import com.aen.spaceship_fights.levels.Level0;
-import com.aen.spaceship_fights.levels.Level1;
+import com.aen.spaceship_fights.levels.*;
 import com.aen.spaceship_fights.networking.Client;
 import com.aen.spaceship_fights.networking.NetworkManager;
 import com.aen.spaceship_fights.networking.Server;
@@ -16,6 +14,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,10 +25,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 
-import static com.aen.spaceship_fights.Config.ENEMIES_PER_LEVEL;
-import static com.aen.spaceship_fights.Config.LEVEL_START_DELAY;
+import static com.aen.spaceship_fights.Config.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 import java.io.IOException;
@@ -60,7 +59,7 @@ public class SpaceShipFightsApp extends GameApplication {
     protected void initSettings(GameSettings gameSettings) {
         gameSettings.setWidth(1280);
         gameSettings.setHeight(720);
-        gameSettings.setTitle("Shooter");
+        gameSettings.setTitle("SpaceShipFights");
         gameSettings.setVersion("0.1");
         gameSettings.setIntroEnabled(true);
         gameSettings.setIntroEnabled(false);
@@ -70,7 +69,7 @@ public class SpaceShipFightsApp extends GameApplication {
         gameSettings.getCredits().addAll(Arrays.asList(
                 "Nyirenda Amos",
                 "Ouedraogo Luther Arthur",
-                "Magne Lidivine Merveille"
+                "Magne Lydivine Merveille"
         ));
     }
 
@@ -78,8 +77,11 @@ public class SpaceShipFightsApp extends GameApplication {
     protected void initInput() {
         onKey(KeyCode.A, () -> player.getComponent(PlayerComponent.class).rotateLeft());
         onKey(KeyCode.D, () -> player.getComponent(PlayerComponent.class).rotateRight());
+        onKey(KeyCode.LEFT, () -> player.getComponent(PlayerComponent.class).rotateLeft());
+        onKey(KeyCode.RIGHT, () -> player.getComponent(PlayerComponent.class).rotateRight());
         onKey(KeyCode.W, () -> player.getComponent(PlayerComponent.class).move());
         onKeyDown(KeyCode.F, () -> player.getComponent(PlayerComponent.class).shoot());
+        onKeyDown(KeyCode.SPACE, () -> player.getComponent(PlayerComponent.class).shoot());
         onKeyDown(KeyCode.P, () -> getGameController().pauseEngine());
         onKeyDown(KeyCode.R, () -> getGameController().resumeEngine());
         onKeyDown(KeyCode.M, () -> getGameController().startNewGame());
@@ -185,11 +187,18 @@ public class SpaceShipFightsApp extends GameApplication {
 
         getCurrentLevel().onUpdate(tpf);
 
-        if (geti("enemiesKilled") >= ENEMIES_PER_LEVEL) {
+
+        if (geti("enemiesKilled") == ENEMIES_PER_LEVEL1) {
             nextLevel();
         }
 
         //runOnce(this::askForUserName, Duration.seconds(LEVEL_START_DELAY));
+    }
+
+    // Si la liste des ennemis est vide, retourne false, sinon retourne true
+    public static boolean hasEnnemies(){
+        List<Entity> ennemies = getGameWorld().getEntitiesByType(EntityType.ENEMY);
+        return !ennemies.isEmpty();
     }
 
     private void initializeGame(){
@@ -214,6 +223,7 @@ public class SpaceShipFightsApp extends GameApplication {
     }
 
     private void nextLevel() {
+        //si le joueur a deja joue un ou plusieurs niveaux
         if (geti("level") > 0) {
             cleanupLevel();
         }
@@ -222,7 +232,10 @@ public class SpaceShipFightsApp extends GameApplication {
         if(geti("level") > gameLevelList.size()) {
             showGameOver();
         }
-
+        /*TODO:
+        *  Affiches un panneau pour dmemander au joueur si il veut continuer ou pas
+        * */
+        /*TODO: Sauvegarder le plus haut niveau du joeur*/
         playInCutscene(() -> {
             spawn("levelInfo");
 

@@ -1,20 +1,19 @@
 package com.aen.spaceship_fights.levels;
 
-import com.almasb.fxgl.app.scene.GameView;
+import com.aen.spaceship_fights.Config;
+import com.aen.spaceship_fights.EntityType;
+import com.almasb.fxgl.dsl.components.FollowComponent;
+import com.almasb.fxgl.dsl.components.RandomMoveComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
-import com.almasb.fxgl.texture.Texture;
 import javafx.geometry.Point2D;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
+import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
 
-import static com.aen.spaceship_fights.Config.ENEMIES_PER_ROW;
-import static com.aen.spaceship_fights.Config.ENEMY_ROWS;
 import static com.almasb.fxgl.core.math.FXGLMath.cos;
 import static com.almasb.fxgl.core.math.FXGLMath.sin;
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static java.lang.Math.pow;
+import static com.almasb.fxgl.dsl.FXGL.random;
 
 public class Level0 extends GameLevel {
 
@@ -22,111 +21,72 @@ public class Level0 extends GameLevel {
     public void init() {
         double t = 0;
 
-        for (int y = 0; y < ENEMY_ROWS; y++) {
-            for (int x = 0; x < ENEMIES_PER_ROW; x++) {
+        // Définir la cible (par exemple, un point fixe sur l'écran)
+        double targetX = getAppWidth() / 2.0-100;
+        double targetY = getAppHeight() / 2.0-100;
 
-                getGameTimer().runOnceAfter(() -> {
+        // Créer un premier ennemi
+        var entity = spawnEnemy(getAppWidth() / 2.0, getAppHeight() / 2.0 - 100);
+        entity.addComponent(new RandomMoveComponent(new Rectangle2D(0, 0, getAppWidth(), getAppHeight() / 2.0), 50));
 
-                    Entity enemy = spawnEnemy(50, 50);
+        // Ajouter le comportement de suivre la cible fixe
+        entity.addComponent(new FollowTargetComponent(targetX, targetY, 50));
 
-                    enemy.addComponent(new MoveComponent());
+        // Créer des ennemis supplémentaires avec un délai
+        for (int i = 0; i < Config.ENEMIES_PER_LEVEL1; i++) {
+            getGameTimer().runOnceAfter(() -> {
+                Entity enemy = spawnEnemy(random(50, getAppWidth() - 100), random(50, getAppHeight() / 2.0 - 100));
+                enemy.addComponent(new RandomMoveComponent(new Rectangle2D(0, 0, getAppWidth(), getAppHeight() / 2.0), 50));
 
-                }, Duration.seconds(t));
+               /* // Ajouter un comportement pour suivre la cible fixe
+                enemy.addComponent(new FollowTargetComponent(targetX, targetY, random(50, 100)));
+*/
+                // Optionnel : Suivre un ennemi existant également
+              /*  getGameWorld().getRandom(EntityType.ENEMY).ifPresent(e -> {
+                    enemy.addComponent(new FollowComponent(e, random(100, 400), random(15, 25), random(30, 40)));
+                });*/
 
-                t += 0.25;
-            }
+            }, Duration.seconds(t));
+
+            t += 0.25;
         }
-
-    }
-
-    @Override
-    public void playInCutscene(Runnable onFinished) {
-
-        showStoryPane();
-
-        Text text = getUIFactoryService().newText("DEFENSE SYSTEM: ALERT! ALERT! ALERT!", Color.WHITE, 24.0);
-        text.setWrappingWidth(getAppWidth() - 50);
-
-        updateStoryText(text);
-
-        runOnce(() -> {
-            text.setText("DEFENSE SYSTEM: Loading defense system........");
-        }, Duration.seconds(3));
-
-        runOnce(this::placeBoss, Duration.seconds(6));
-
-        runOnce(() -> {
-            hideStoryPane();
-            onFinished.run();
-
-        }, Duration.seconds(26));
     }
 
 
 
-    private void placeBoss() {
-        Texture boss = texture("instructor_2.png");
-        boss.setOpacity(0);
-        boss.setTranslateX(getAppWidth() / 2.0 - boss.getWidth() / 2.0);
-        boss.setTranslateY(0);
-
-        var view = new GameView(boss, 4000);
-
-        getGameScene().addGameView(view);
-
-        animationBuilder()
-                .duration(Duration.seconds(2))
-                .fadeIn(boss)
-                .buildAndPlay();
-
-        updateAlienStoryText("HQ: Listen up, fighter. Our base is under attack, and we don’t have time for hesitation.");
-
-
-
-        runOnce(() -> {
-            updateAlienStoryText("HQ: Let’s see if you’re as good as they say. Am putting you on trial.");
-        }, Duration.seconds(10));
-
-        runOnce(() -> {
-            updateAlienStoryText("HQ: Your orders are simple: survive, adapt, and eliminate the enemy. Now move out");
-        }, Duration.seconds(10));
-
-
-        runOnce(() -> {
-            updateAlienStoryText("HQ: You want to be a warrior? Then fight like one. Pick up that weapon and get to work!");
-        }, Duration.seconds(12));
-
-
-
-        runOnce(() -> {
-            animationBuilder()
-                    .onFinished(() -> getGameScene().removeGameView(view))
-                    .duration(Duration.seconds(2))
-                    .fadeOut(boss)
-                    .buildAndPlay();
-        }, Duration.seconds(13.5));
-
-    }
-
-    private static class MoveComponent extends Component {
-
+    private static class FollowTargetComponent extends Component {
+        private Point2D target;
+        private double speed;
         private double t = 0;
+
+        public FollowTargetComponent(double targetX, double targetY, double speed) {
+            this.target = new Point2D(targetX, targetY);
+            this.speed = speed;
+        }
 
         @Override
         public void onUpdate(double tpf) {
-            entity.setPosition(curveFunction().add(getAppWidth() / 2.0, getAppHeight() / 2.0 - 100));
+
+            // Calculer la direction vers la cible
+            Point2D direction = target.subtract(entity.getPosition()).normalize();
+            entity.setPosition(curveFunction());
+            // Déplacer l'entité vers la cible
+            entity.translate(direction.getX() * speed * tpf, direction.getY() * speed * tpf);
 
             t += tpf;
         }
 
+        public void setTarget(double x, double y) {
+            this.target = new Point2D(x, y);
+        }
         private Point2D curveFunction() {
 
-            double x = 16 * pow(sin(t), 3);
-            double y = 13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t);
-
-
+            double x = 100 * sin(t);
+            double y = 100 * cos(t);
 
             return new Point2D(x, -y).multiply(28);
         }
     }
+
+
 }
