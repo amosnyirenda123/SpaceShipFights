@@ -36,6 +36,9 @@ public class GameEntityFactory implements EntityFactory {
                 .with(new PlayerComponent())
                 .collidable()
                 .build();
+        /*getGameWorld().addEntity(player); // ajoute l'entité au monde
+        getGameWorld().setSingleton("PLAYER", player); // rend accessible partout*/
+
     }
 
     @Spawns("fff")
