@@ -26,20 +26,20 @@ public class EnemyComponent extends Component {
     public void onUpdate(double tpf) {
         if (attackTimer.elapsed(nextAttack)) {
             if (FXGLMath.randomBoolean(0.3f)) {
-                shoot();
+//                shoot();
             }
             nextAttack = Duration.seconds(5 * Math.random());
             attackTimer.capture();
         }
     }
 
-    protected void shoot() {
-        Point2D to = new Point2D(getAppWidth() , getAppHeight() );
-
-        spawn("e_bullet", new SpawnData(0, 0).put("dir", to));
-
-        play("shoot" + (int)(Math.random() * 4 + 1) + ".wav");
-    }
+//    protected void shoot() {
+//        Point2D to = new Point2D(getAppWidth() , getAppHeight() );
+//
+//        spawn("e_bullet", new SpawnData(0, 0).put("dir", to));
+//
+//        play("shoot" + (int)(Math.random() * 4 + 1) + ".wav");
+//    }
 
     public void die() {
         spawn("explosion", entity.getCenter());

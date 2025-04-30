@@ -4,10 +4,17 @@ import com.aen.spaceship_fights.EntityType;
 import com.almasb.fxgl.dsl.components.FollowComponent;
 import com.almasb.fxgl.dsl.components.RandomMoveComponent;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.component.Component;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
 
+import static com.aen.spaceship_fights.Config.ENEMIES_PER_ROW;
+import static com.aen.spaceship_fights.Config.ENEMY_ROWS;
+import static com.almasb.fxgl.core.math.FXGLMath.cos;
+import static com.almasb.fxgl.core.math.FXGLMath.sin;
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static java.lang.Math.pow;
 
 public class Level1 extends GameLevel {
 
@@ -16,24 +23,42 @@ public class Level1 extends GameLevel {
     public void init() {
         double t = 0;
 
-        var entity = spawnEnemy(getAppWidth() / 2.0, getAppHeight() / 2.0 - 100);
-        entity.addComponent(new RandomMoveComponent(new Rectangle2D(0, 0, getAppWidth(), getAppHeight() / 2.0), 50));
+        for (int y = 0; y < ENEMY_ROWS; y++) {
+            for (int x = 0; x < ENEMIES_PER_ROW; x++) {
 
-        for (int i = 0; i < 31; i++) {
-            getGameTimer().runOnceAfter(() -> {
+                getGameTimer().runOnceAfter(() -> {
 
-                Entity enemy = spawnEnemy(random(50, getAppWidth() - 100), random(50, getAppHeight() / 2.0 - 100));
-                enemy.addComponent(new RandomMoveComponent(new Rectangle2D(0, 0, getAppWidth(), getAppHeight() / 2.0), 50));
+                    Entity enemy = spawnEnemy(getAppWidth() * Math.random(), 0);
 
-                getGameWorld().getRandom(EntityType.ENEMY).ifPresent(e -> {
-                    enemy.addComponent(new FollowComponent(e, random(100, 400), random(15, 25), random(30, 40)));
-                });
+                    enemy.addComponent(new MoveComponent());
 
-            }, Duration.seconds(t));
+                }, Duration.seconds(t));
 
-            t += 0.25;
+                t += 0.25;
+            }
         }
+
     }
 
+    private static class MoveComponent extends Component {
 
+        private double t = 0;
+
+        @Override
+        public void onUpdate(double tpf) {
+            entity.setPosition(moveFunction().add(getAppWidth() / 2.0, getAppHeight() / 2.0 - 100));
+
+            t += tpf;
+        }
+
+        private Point2D moveFunction() {
+
+            double x = 2*pow(t, 2);
+            double y = 13;
+
+
+
+            return new Point2D(x, -y).multiply(28);
+        }
+    }
 }

@@ -1,6 +1,10 @@
 package com.aen.spaceship_fights;
 
 import com.aen.spaceship_fights.database.Db;
+import com.aen.spaceship_fights.networking.ChatContext;
+import com.aen.spaceship_fights.networking.ChatServiceFXGL;
+import com.aen.spaceship_fights.ui.ActiveUsers;
+import com.aen.spaceship_fights.ui.CustomButton;
 import com.aen.spaceship_fights.ui.MenuButton;
 import com.aen.spaceship_fights.ui.ScoreBoardUI;
 import com.aen.spaceship_fights.utils.Selection;
@@ -34,6 +38,8 @@ public class MainMenu extends FXGLMenu {
     private Rectangle overlay = null;
     public MainMenu() {
         super(MenuType.MAIN_MENU);
+        //connect to server
+
         Image background = new Image(getClass().getResource("/assets/textures/landing.jpg").toExternalForm());
         overlay = new Rectangle(getAppWidth(), getAppHeight(), Color.BLACK);
         overlay.setOpacity(0.5);
@@ -84,6 +90,7 @@ public class MainMenu extends FXGLMenu {
     }
 
     private void getMenuContent(){
+        ChatContext.getInstance();
         Image background = new Image(getClass().getResource("/assets/textures/wpp.jpg").toExternalForm());
         overlay = new Rectangle(getAppWidth(), getAppHeight(), Color.BLACK);
         overlay.setOpacity(0.5);
@@ -109,7 +116,7 @@ public class MainMenu extends FXGLMenu {
         var MenuButtonContainer = new VBox(15,
 
                 new MenuButton("Play Game", () -> setContent(startGame())),
-                new MenuButton("Extras", () -> setContent(new ScoreBoardUI().showScoreBoard())),
+                new MenuButton("Extras", () -> showMessage("TODO: not implemented")),
                 new MenuButton("Upgrades", () -> showMessage("TODO: not implemented")),
                 new MenuButton("Settings", () -> showMessage("TODO: not implemented")),
                 new MenuButton("Exit", this::fireExit)
@@ -153,6 +160,93 @@ public class MainMenu extends FXGLMenu {
 
     private void setContent(Node view) {
         mainArea.getChildren().setAll(view);
+    }
+
+    private void addContent(Node view){
+        mainArea.getChildren().addAll(view);
+    }
+
+    public Parent showActiveUsers(){
+        ListView<String> userListView = new ListView<>();
+        BorderPane root = new BorderPane();
+        root.setTranslateY(20);
+        root.setTranslateX(700);
+        VBox userInfoBox = new VBox(10);
+        userListView.getItems().addAll("Alice", "Bob", "Charlie", "Amos");
+        userListView.setStyle(
+                "-fx-control-inner-background: black;" +
+                        "-fx-background-insets: 0;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-family: 'Courier New';" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-border-color: #8B0000;" +
+                        "-fx-border-width: 2px;" +
+                        "-fx-effect: dropshadow(gaussian, #8B0000, 10, 0.5, 0, 0);"
+        );
+
+        userListView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("-fx-background-color: black;");
+                } else {
+                    setText(item);
+                    setStyle("-fx-background-color: black; -fx-text-fill: white;");
+                }
+            }
+        });
+
+        userInfoBox.setStyle(
+                "-fx-background-color: black;" +
+                        "-fx-padding: 10;" +
+                        "-fx-border-color: #8B0000;" +
+                        "-fx-font-family: 'Courier New';" +
+                        "-fx-border-width: 2px;" +
+                        "-fx-effect: dropshadow(gaussian, #8B0000, 10, 0.5, 0, 0);"
+        );
+
+        Label nameLabel = new Label();
+        nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+        Label statusLabel = new Label("Status: Online");
+        statusLabel.setStyle("-fx-text-fill: #8B0000; -fx-font-size: 14px;");
+
+        Label ipLabel = new Label("IP Address: 192.168.1.1");
+        ipLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+
+        userInfoBox.getChildren().addAll(nameLabel, statusLabel, ipLabel);
+
+        // On user click, update user info box
+        userListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                nameLabel.setText("Username: " + newVal);
+                // Optionally fetch other details dynamically
+            }
+        });
+        CustomButton connectBtn = new CustomButton("Send Invitation", null);
+
+
+        HBox buttonBox = new HBox(10, connectBtn);
+        buttonBox.setAlignment(Pos.CENTER_LEFT);
+        buttonBox.setPadding(new Insets(15));
+
+        VBox infoPane = new VBox(userInfoBox);
+        infoPane.setAlignment(Pos.CENTER);
+        infoPane.setPadding(new Insets(0,20,0,20));
+
+        VBox rightPane = new VBox(10, infoPane, buttonBox);
+        rightPane.setAlignment(Pos.TOP_CENTER);
+
+
+        root.setLeft(userListView);
+        root.setCenter(rightPane);
+        root.setTranslateX(10);
+
+        root.setStyle("-fx-background-color: black; -fx-padding: 20;");
+
+        return root;
     }
 
     private String planeChoice = "None";
@@ -243,7 +337,7 @@ public class MainMenu extends FXGLMenu {
         root.setStyle("-fx-background-color: black;");
         root.setPrefSize(getAppWidth(), getAppHeight());
 
-        getContentRoot().getChildren().setAll(root);
+        getContentRoot().getChildren().addAll(root);
 
 
 
@@ -286,7 +380,7 @@ public class MainMenu extends FXGLMenu {
     private Parent startGame() {
 
 
-        Text title = new Text("Choose Your Plane and Level");
+        Text title = new Text("Scene Configuration");
         title.setFont(Font.loadFont(getClass().getResourceAsStream("/assets/fonts/BruceForever.ttf"), 20));
 
         LinearGradient gradientFill = new LinearGradient(
@@ -296,6 +390,9 @@ public class MainMenu extends FXGLMenu {
                 new Stop(0.9, Color.color(0.4, 0.0, 0.0, 1))   // Darker Red
         );
         title.setFill(gradientFill);
+
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER);
 
 
         DropShadow shadow = new DropShadow();
@@ -380,8 +477,10 @@ public class MainMenu extends FXGLMenu {
                 );
         buttonBox.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(50, title, imageBox, buttonBox);
-        layout.setAlignment(Pos.CENTER);
+        VBox layout = new VBox(50);
+        layout.getChildren().addAll(header, imageBox, showActiveUsers() ,buttonBox);
+        header.getChildren().addAll(title);
+        layout.setAlignment(Pos.TOP_CENTER);
         layout.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
         layout.setPrefHeight(getAppHeight());
         layout.setPrefWidth(getAppWidth() );
@@ -463,7 +562,7 @@ public class MainMenu extends FXGLMenu {
         root.setStyle("-fx-background-color: black;");
         root.setPrefSize(getAppWidth(), getAppHeight());
 
-        getContentRoot().getChildren().setAll(root);
+        getContentRoot().getChildren().addAll(root);
 
         btn.setOnAction(e -> {
             if(!fieldFirstName.getText().isEmpty() || !fieldLastName.getText().isEmpty() || !fieldEmail.getText().isEmpty() || !fieldPassword.getText().isEmpty()) {

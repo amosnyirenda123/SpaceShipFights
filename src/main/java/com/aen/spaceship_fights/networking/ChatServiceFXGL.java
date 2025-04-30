@@ -6,6 +6,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
@@ -15,7 +16,13 @@ public class ChatServiceFXGL extends VBox {
     private TextArea messageArea;
     private TextField inputField;
 
-    public ChatServiceFXGL(String serverAddress, int port) {
+    public ChatServiceFXGL() {
+
+    }
+
+    public VBox showChatUI(){
+        VBox chatUI = new VBox();
+
         messageArea = new TextArea();
         messageArea.setEditable(false);
         messageArea.setPrefHeight(200);
@@ -77,15 +84,19 @@ public class ChatServiceFXGL extends VBox {
                 );
             }
         });
-        inputField.setOnAction(e -> sendMessage());
+        inputField.setOnAction(e -> {
+            sendMessage();
+        });
 
-        this.getChildren().addAll(messageArea, inputField);
-        this.setVisible(false);
 
-        connectToServer(serverAddress, port);
+        chatUI.getChildren().addAll(messageArea, inputField);
+        chatUI.setVisible(false);
+
+        return chatUI;
+
     }
 
-    private void connectToServer(String serverAddress, int port) {
+    public void connectToServer(String serverAddress, int port) {
         try {
             Socket socket = new Socket(serverAddress, port);
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -114,7 +125,7 @@ public class ChatServiceFXGL extends VBox {
         }
     }
 
-    public void toggleVisibility() {
-        this.setVisible(!this.isVisible());
+    public static void toggleVisibility(VBox box) {
+        box.setVisible(!box.isVisible());
     }
 }

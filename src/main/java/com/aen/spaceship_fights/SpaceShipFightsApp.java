@@ -4,6 +4,8 @@ import com.aen.spaceship_fights.database.Db;
 import com.aen.spaceship_fights.levels.GameLevel;
 import com.aen.spaceship_fights.levels.Level0;
 import com.aen.spaceship_fights.levels.Level1;
+import com.aen.spaceship_fights.networking.ChatContext;
+import com.aen.spaceship_fights.networking.ChatServer;
 import com.aen.spaceship_fights.networking.ChatServiceFXGL;
 import com.aen.spaceship_fights.utils.Selection;
 import com.aen.spaceship_fights.utils.UserData;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -136,6 +139,7 @@ public class SpaceShipFightsApp extends GameApplication {
 
     }
     private boolean runningFirstTime = true;
+
 
     @Override
     protected void onUpdate(double tpf) {
@@ -317,7 +321,7 @@ public class SpaceShipFightsApp extends GameApplication {
     @Override
     protected void initUI() {
 
-        chatUI = new ChatServiceFXGL("localhost", Config.PORT_NUMBER);
+        var chatUI = ChatContext.getInstance().showChatUI();
 
         chatUI.setTranslateX(20);
         chatUI.setTranslateY(120);
@@ -334,7 +338,7 @@ public class SpaceShipFightsApp extends GameApplication {
         chatButton.setStyle("-fx-background-color: transparent; -fx-padding: 4;");
 
 
-        chatButton.setOnAction(e -> chatUI.toggleVisibility());
+        chatButton.setOnAction(e -> ChatServiceFXGL.toggleVisibility(chatUI));
         chatButton.setTranslateX(20);
         chatButton.setTranslateY(80);
 

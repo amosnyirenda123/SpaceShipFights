@@ -4,7 +4,7 @@ public class Config {
     private Config(){}
     public static final String SAVE_DATA_NAME = "./hiscore.dat";
     public static final String SAVE_USER_INFO = "./userinfo.dat";
-    public static final int PORT_NUMBER = 40000;
+    public static final int PORT_NUMBER = 40008;
 
     public static final int WIDTH = 650;
     public static final int HEIGHT = 800;
