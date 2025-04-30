@@ -46,6 +46,14 @@ public class SpaceShipFightsApp extends GameApplication {
     private int highScore;
     private String highScoreName;
 
+    public Entity getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Entity player) {
+        this.player = player;
+    }
+
     @Override
     protected void initGameVars(Map<String, Object> vars){
         vars.put("score", 0);
@@ -203,8 +211,9 @@ public class SpaceShipFightsApp extends GameApplication {
 
     private void initializeGame(){
         gameLevelList = Arrays.asList(
-                new Level0(),
-                new Level1()
+                /*new Level0(),
+                new Level1(),*/
+                new Level2()
         );
 
         spawn("background");
