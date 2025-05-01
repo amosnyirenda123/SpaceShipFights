@@ -7,6 +7,7 @@ import com.aen.spaceship_fights.levels.Level1;
 import com.aen.spaceship_fights.networking.ChatContext;
 import com.aen.spaceship_fights.networking.ChatServer;
 import com.aen.spaceship_fights.networking.ChatServiceFXGL;
+import com.aen.spaceship_fights.ui.CustomButton;
 import com.aen.spaceship_fights.utils.Selection;
 import com.aen.spaceship_fights.utils.UserData;
 import com.almasb.fxgl.animation.Interpolators;
@@ -322,27 +323,39 @@ public class SpaceShipFightsApp extends GameApplication {
     protected void initUI() {
 
         var chatUI = ChatContext.getInstance().showChatUI();
+        var notificationPane = ChatContext.getInstance().showNotificationPane();
 
         chatUI.setTranslateX(20);
-        chatUI.setTranslateY(120);
+        chatUI.setTranslateY(150);
+
+        notificationPane.setTranslateX(20);
+        notificationPane.setTranslateY(400);
 
         getGameScene().addUINode(chatUI);
-
+        getGameScene().addUINode(notificationPane);
         Image sendIcon = new Image(getClass().getResource("/assets/chat/message.png").toExternalForm());
+        Image notificationIcon = new Image(getClass().getResource("/assets/chat/notification-bell.png").toExternalForm());
         ImageView imageView = new ImageView(sendIcon);
+        ImageView notificationImageView = new ImageView(notificationIcon);
         imageView.setFitWidth(32);
         imageView.setFitHeight(32);
+        notificationImageView.setFitWidth(32);
+        notificationImageView.setFitHeight(32);
 
-        Button chatButton= new Button();
+
+        CustomButton displayNotificationPane = new CustomButton("", () -> notificationPane.setVisible(!notificationPane.isVisible()));
+        CustomButton chatButton = new CustomButton("", () -> chatUI.setVisible(!chatUI.isVisible()));
         chatButton.setGraphic(imageView);
-        chatButton.setStyle("-fx-background-color: transparent; -fx-padding: 4;");
+        displayNotificationPane.setGraphic(notificationImageView);
 
 
-        chatButton.setOnAction(e -> ChatServiceFXGL.toggleVisibility(chatUI));
         chatButton.setTranslateX(20);
         chatButton.setTranslateY(80);
+        displayNotificationPane.setTranslateX(80);
+        displayNotificationPane.setTranslateY(80);
 
         getGameScene().addUINode(chatButton);
+        getGameScene().addUINode(displayNotificationPane);
 
         controller = new GameController(getGameScene());
         var text = getUIFactoryService().newText("", 24);

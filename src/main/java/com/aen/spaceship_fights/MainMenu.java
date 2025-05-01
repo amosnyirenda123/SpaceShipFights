@@ -172,7 +172,7 @@ public class MainMenu extends FXGLMenu {
         root.setTranslateY(20);
         root.setTranslateX(700);
         VBox userInfoBox = new VBox(10);
-        userListView.getItems().addAll("Alice", "Bob", "Charlie", "Amos");
+        userListView.setItems(ChatContext.getInstance().getUsersList());
         userListView.setStyle(
                 "-fx-control-inner-background: black;" +
                         "-fx-background-insets: 0;" +
@@ -213,19 +213,22 @@ public class MainMenu extends FXGLMenu {
         Label statusLabel = new Label("Status: Online");
         statusLabel.setStyle("-fx-text-fill: #8B0000; -fx-font-size: 14px;");
 
-        Label ipLabel = new Label("IP Address: 192.168.1.1");
+        Label ipLabel = new Label("You can start a chat with this user to send and receive messages.");
         ipLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
 
         userInfoBox.getChildren().addAll(nameLabel, statusLabel, ipLabel);
 
-        // On user click, update user info box
+        final String[] notificationRecep = {""};
         userListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 nameLabel.setText("Username: " + newVal);
-                // Optionally fetch other details dynamically
+                notificationRecep[0] = newVal;
             }
         });
-        CustomButton connectBtn = new CustomButton("Send Invitation", null);
+        CustomButton connectBtn = new CustomButton("Send Invitation", () -> {
+            System.out.println("Notification sent to: "+ notificationRecep[0]);
+            ChatContext.getInstance().sendInvitation(notificationRecep[0]);
+        });
 
 
         HBox buttonBox = new HBox(10, connectBtn);

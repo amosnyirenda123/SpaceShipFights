@@ -3,6 +3,7 @@ package com.aen.spaceship_fights.utils;
 public class Selection {
     private static String planeName = "player";
     private static String username = "Computer";
+    private static String notificationRecep = "";
 
     public static void setPlaneName(String planeName) {
         Selection.planeName = planeName;
@@ -16,5 +17,11 @@ public class Selection {
     }
     public static String getUsername() {
         return username;
+    }
+    public static void setNotificationRecep(String notificationRecep) {
+        Selection.notificationRecep = notificationRecep;
+    }
+    public static String getNotificationRecep() {
+        return notificationRecep;
     }
 }
