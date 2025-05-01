@@ -59,6 +59,7 @@ public class ChatServer {
             while ((message = in.readLine()) != null) {
                 String recep = "RECEIVER:";
                 String inviteAccepted = "INVITE_ACCEPTED:";
+                String o_Score = "O_SCORE:";
                 if(message.startsWith(recep)) {
                     String[] parts = message.split(":");
                     if(parts.length == 3) {
@@ -81,6 +82,12 @@ public class ChatServer {
                         }
                     }
 
+                }else if(message.startsWith(o_Score)) {
+                    String[] parts = message.split(":");
+                    PrintWriter writer = userWriterMap.get(parts[1]);
+                    if(writer != null) {
+                        writer.println("SCORE:" + parts[2]);
+                    }
                 }else{
                     broadcast(message);
                 }

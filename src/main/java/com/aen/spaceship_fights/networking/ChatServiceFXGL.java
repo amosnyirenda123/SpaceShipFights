@@ -27,6 +27,8 @@ public class ChatServiceFXGL extends VBox {
     private TextField inputField;
     private VBox notificationPane;
     private Timeline timeline;
+    private String opponent;//TODO: make list to allow multiple opponents
+    private Map<String, Integer> opponentScores = new HashMap<>();
     private VBox gameTimerUI;
     private final ObservableList<String> activeUsers = FXCollections.observableArrayList();
 
@@ -111,6 +113,7 @@ public class ChatServiceFXGL extends VBox {
     }
 
     private void addInvitationNotification(String inviter) {
+        opponent = inviter; //TODO: Add oponent to list
         HBox invitationBox = new HBox(10);
         invitationBox.setAlignment(Pos.CENTER_LEFT);
         invitationBox.setStyle("-fx-background-color: #2e2e2e; -fx-padding: 10px; -fx-border-color: #8B0000;");
@@ -190,14 +193,28 @@ public class ChatServiceFXGL extends VBox {
             timeLeft[0]--;
 
             if (timeLeft[0] < 0) {
-                FXGL.getDialogService().showConfirmationBox("The other person has won the Game. Click yes to go to main menu.", yes ->{
-                    if(yes){
-                        FXGL.getGameController().gotoMainMenu();
-                    }else{
-                        FXGL.getGameController().exit();
-                    }
-                });
+                timeLeft[0] = 0;
+                int my_score = FXGL.geti("score");
+                out.println("O_SCORE:" + opponent + ":" + my_score);
+
+
+                FXGL.runOnce(() ->{
+                    FXGL.getDialogService().showConfirmationBox(
+                            "Your Score: "+ my_score + "\n"+
+                                    "Opponent Score: " + opponentScores.get(opponent) +
+                                    "\nClick Yes to go to the main menu.", yes ->{
+                                if(yes){
+                                    FXGL.getGameController().gotoMainMenu();
+                                }else{
+                                    FXGL.getGameController().exit();
+                                }
+                            });
+                }, Duration.seconds(1));
+
+
             }
+
+
         }));
 
         timeline.setCycleCount(31);
@@ -222,6 +239,7 @@ public class ChatServiceFXGL extends VBox {
                     while ((message = in.readLine()) != null) {
                         String finalMessage = message;
                         String usersArrayStart = "USERS:";
+                        String opponentScoreStart = "SCORE:"; //TODO: make it more safe and unique
                         String invitationMessageStart = "INVITATION:";
                         String invitationAccepted = "I_ACCEPTED:";
                         if(finalMessage.startsWith(usersArrayStart)) {
@@ -242,6 +260,9 @@ public class ChatServiceFXGL extends VBox {
                                 pushNotification("Invitation Accepted.");
                                 startTimer(timeline);
                             });
+                        }else if(finalMessage.startsWith(opponentScoreStart)){
+                            String score = finalMessage.substring(opponentScoreStart.length());
+                            opponentScores.put(opponent, Integer.parseInt(score));
                         }else{
                             Platform.runLater(() -> {
                                 if(messageArea != null) {
@@ -270,6 +291,7 @@ public class ChatServiceFXGL extends VBox {
     public void sendInvitation(String receiver){
         if(out != null) {
             out.println("RECEIVER:" + receiver + ":" + Selection.getUsername());
+
         }else{
             System.err.println("Error: Not connected to server. 'out' is null.");
         }
