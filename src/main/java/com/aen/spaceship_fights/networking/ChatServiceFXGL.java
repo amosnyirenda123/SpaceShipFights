@@ -1,6 +1,9 @@
 package com.aen.spaceship_fights.networking;
 
 import com.aen.spaceship_fights.utils.Selection;
+import com.almasb.fxgl.dsl.FXGL;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,12 +13,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class ChatServiceFXGL extends VBox {
 
@@ -23,6 +26,8 @@ public class ChatServiceFXGL extends VBox {
     private TextArea messageArea;
     private TextField inputField;
     private VBox notificationPane;
+    private Timeline timeline;
+    private VBox gameTimerUI;
     private final ObservableList<String> activeUsers = FXCollections.observableArrayList();
 
     public ChatServiceFXGL() {
@@ -118,12 +123,14 @@ public class ChatServiceFXGL extends VBox {
         Button declineBtn = new Button("Decline");
 
         acceptBtn.setOnAction(e -> {
-//            out.println("INVITE_ACCEPTED:" + inviter);
+            out.println("INVITE_ACCEPTED:" + inviter);
+            startTimer(timeline);
             notificationPane.getChildren().remove(invitationBox);
         });
 
         declineBtn.setOnAction(e -> {
 //            out.println("INVITE_DECLINED:" + inviter);
+
             notificationPane.getChildren().remove(invitationBox);
         });
 
@@ -134,7 +141,23 @@ public class ChatServiceFXGL extends VBox {
         }
 
     }
+    private void pushNotification(String message) {
+        HBox notificationBox = new HBox(10);
+        notificationBox.setAlignment(Pos.CENTER_LEFT);
+        notificationBox.setStyle("-fx-background-color: #2e2e2e; -fx-padding: 10px; -fx-border-color: #8B0000;");
 
+        Label label = new Label(message);
+        label.setTextFill(Color.WHITE);
+        label.setFont(Font.font("Consolas", 11));
+
+        Button cancelBtn = new Button("Cancel");
+
+        cancelBtn.setOnAction(e -> {
+            notificationPane.getChildren().remove(notificationBox);
+        });
+        notificationBox.getChildren().addAll(label, cancelBtn);
+        notificationPane.getChildren().add(notificationBox);
+    }
     public VBox showNotificationPane(){
         notificationPane = new VBox();
         notificationPane.setSpacing(10);
@@ -145,6 +168,45 @@ public class ChatServiceFXGL extends VBox {
                 "-fx-effect: dropshadow(gaussian, #ff0033, 10, 0.5, 0, 0);");
         notificationPane.setVisible(false);
         return notificationPane;
+    }
+
+
+
+    public VBox showGameTimerUI(){
+        VBox gameTimerUI = new VBox();
+        Label timerLabel = new Label();
+        timerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #8B0000;");
+        gameTimerUI.getChildren().add(timerLabel);
+
+
+        final int[] timeLeft = {30};
+
+
+            timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            int minutes = timeLeft[0] / 60;
+            int seconds = timeLeft[0] % 60;
+            timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
+
+            timeLeft[0]--;
+
+            if (timeLeft[0] < 0) {
+                FXGL.getDialogService().showConfirmationBox("The other person has won the Game. Click yes to go to main menu.", yes ->{
+                    if(yes){
+                        FXGL.getGameController().gotoMainMenu();
+                    }else{
+                        FXGL.getGameController().exit();
+                    }
+                });
+            }
+        }));
+
+        timeline.setCycleCount(31);
+
+        return gameTimerUI;
+    }
+
+    public void startTimer(Timeline timeline){
+        timeline.play();
     }
 
     public void connectToServer(String serverAddress, int port) {
@@ -161,16 +223,24 @@ public class ChatServiceFXGL extends VBox {
                         String finalMessage = message;
                         String usersArrayStart = "USERS:";
                         String invitationMessageStart = "INVITATION:";
+                        String invitationAccepted = "I_ACCEPTED:";
                         if(finalMessage.startsWith(usersArrayStart)) {
                             String[] users = finalMessage.substring(usersArrayStart.length()).split(",");
 
-                            Platform.runLater(()-> {
-                                activeUsers.setAll(Arrays.asList(users));
+                            Platform.runLater(() -> {
+                                List<String> uniqueUsers = new ArrayList<>(new LinkedHashSet<>(Arrays.asList(users)));
+                                activeUsers.setAll(uniqueUsers);
                             });
                         }else if(finalMessage.startsWith(invitationMessageStart)) {
                             String inviter = finalMessage.substring(invitationMessageStart.length());
                             Platform.runLater(()->{
                                 addInvitationNotification(inviter);
+                            });
+                        }else if(finalMessage.startsWith(invitationAccepted)) {
+
+                            Platform.runLater(()->{
+                                pushNotification("Invitation Accepted.");
+                                startTimer(timeline);
                             });
                         }else{
                             Platform.runLater(() -> {
@@ -210,7 +280,7 @@ public class ChatServiceFXGL extends VBox {
         box.setVisible(!box.isVisible());
     }
 
-    public ObservableList<String> getUsersList(){
+    public ObservableList<String> getUsersList() {
         return activeUsers;
     }
 }

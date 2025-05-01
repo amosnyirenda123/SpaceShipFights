@@ -324,15 +324,20 @@ public class SpaceShipFightsApp extends GameApplication {
 
         var chatUI = ChatContext.getInstance().showChatUI();
         var notificationPane = ChatContext.getInstance().showNotificationPane();
+        var timerUI = ChatContext.getInstance().showGameTimerUI();
 
         chatUI.setTranslateX(20);
         chatUI.setTranslateY(150);
+        timerUI.setTranslateX(200);
+        timerUI.setTranslateY(5);
 
         notificationPane.setTranslateX(20);
         notificationPane.setTranslateY(400);
 
         getGameScene().addUINode(chatUI);
         getGameScene().addUINode(notificationPane);
+        getGameScene().addUINode(timerUI);
+
         Image sendIcon = new Image(getClass().getResource("/assets/chat/message.png").toExternalForm());
         Image notificationIcon = new Image(getClass().getResource("/assets/chat/notification-bell.png").toExternalForm());
         ImageView imageView = new ImageView(sendIcon);

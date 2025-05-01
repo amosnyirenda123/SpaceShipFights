@@ -58,6 +58,7 @@ public class ChatServer {
             String message;
             while ((message = in.readLine()) != null) {
                 String recep = "RECEIVER:";
+                String inviteAccepted = "INVITE_ACCEPTED:";
                 if(message.startsWith(recep)) {
                     String[] parts = message.split(":");
                     if(parts.length == 3) {
@@ -66,6 +67,17 @@ public class ChatServer {
                         PrintWriter writer = userWriterMap.get(receiver);
                         if(writer != null) {
                             writer.println("INVITATION:" + sender);
+                        }
+                    }
+
+                }else if (message.startsWith(inviteAccepted)) {
+                    String[] parts = message.split(":");
+
+                    if(parts.length == 2) {
+                        PrintWriter writer = userWriterMap.get(parts[1]);
+                        if(writer != null) {
+                            System.out.println("Message sent");
+                            writer.println("I_ACCEPTED:" + parts[1]);
                         }
                     }
 

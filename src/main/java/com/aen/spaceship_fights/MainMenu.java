@@ -10,6 +10,8 @@ import com.aen.spaceship_fights.ui.ScoreBoardUI;
 import com.aen.spaceship_fights.utils.Selection;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -25,6 +27,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -172,7 +175,9 @@ public class MainMenu extends FXGLMenu {
         root.setTranslateY(20);
         root.setTranslateX(700);
         VBox userInfoBox = new VBox(10);
-        userListView.setItems(ChatContext.getInstance().getUsersList());
+        ObservableList<String> allUsers = ChatContext.getInstance().getUsersList();
+        FilteredList<String> filteredUsers = new FilteredList<>(allUsers, s -> !s.equals(Selection.getUsername()));
+        userListView.setItems(filteredUsers);
         userListView.setStyle(
                 "-fx-control-inner-background: black;" +
                         "-fx-background-insets: 0;" +
