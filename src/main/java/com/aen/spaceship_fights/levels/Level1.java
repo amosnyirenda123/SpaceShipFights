@@ -22,43 +22,30 @@ public class Level1 extends GameLevel {
     @Override
     public void init() {
         double t = 0;
-
         for (int y = 0; y < ENEMY_ROWS; y++) {
             for (int x = 0; x < ENEMIES_PER_ROW; x++) {
-
                 getGameTimer().runOnceAfter(() -> {
-
-                    Entity enemy = spawnEnemy(getAppWidth() * Math.random(), 0);
-
-                    enemy.addComponent(new MoveComponent());
-
+                    Entity enemy = spawnEnemy(getAppWidth() / 2.0, getAppHeight() / 2.0);
+                    enemy.addComponent(new SpiralComponent());
                 }, Duration.seconds(t));
-
                 t += 0.25;
             }
         }
-
     }
 
-    private static class MoveComponent extends Component {
-
-        private double t = 0;
+    private static class SpiralComponent extends Component {
+        private double angle = 0;
+        private double radius = 200;
 
         @Override
         public void onUpdate(double tpf) {
-            entity.setPosition(moveFunction().add(getAppWidth() / 2.0, getAppHeight() / 2.0 - 100));
+            angle += tpf * 2;
+            radius -= tpf * 10;
 
-            t += tpf;
-        }
+            double x = Math.cos(angle) * radius;
+            double y = Math.sin(angle) * radius;
 
-        private Point2D moveFunction() {
-
-            double x = 2*pow(t, 2);
-            double y = 13;
-
-
-
-            return new Point2D(x, -y).multiply(28);
+            entity.setPosition(getAppWidth() / 2 + x, getAppHeight() / 2 + y);
         }
     }
 }

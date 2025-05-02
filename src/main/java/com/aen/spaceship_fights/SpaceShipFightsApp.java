@@ -1,9 +1,7 @@
 package com.aen.spaceship_fights;
 
 import com.aen.spaceship_fights.database.Db;
-import com.aen.spaceship_fights.levels.GameLevel;
-import com.aen.spaceship_fights.levels.Level0;
-import com.aen.spaceship_fights.levels.Level1;
+import com.aen.spaceship_fights.levels.*;
 import com.aen.spaceship_fights.networking.ChatContext;
 import com.aen.spaceship_fights.networking.ChatServer;
 import com.aen.spaceship_fights.networking.ChatServiceFXGL;
@@ -171,7 +169,11 @@ public class SpaceShipFightsApp extends GameApplication {
     private void initializeGame(){
         gameLevelList = Arrays.asList(
                 new Level0(),
-                new Level1()
+                new Level1(),
+                new Level2(),
+                new Level3(),
+                new Level4(),
+                new Level5()
         );
 
         spawn("background");
