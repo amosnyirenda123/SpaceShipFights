@@ -18,42 +18,30 @@ public class Level3 extends GameLevel {
             for (int x = 0; x < ENEMIES_PER_ROW; x++) {
                 getGameTimer().runOnceAfter(() -> {
                     Entity enemy = spawnEnemy(getAppWidth() / 2.0, getAppHeight() / 2.0);
-                    enemy.addComponent(new SquarePathComponent());
+                    enemy.addComponent(new SpiralComponent());
                 }, Duration.seconds(t));
                 t += 0.25;
             }
         }
     }
 
-    private static class SquarePathComponent extends Component {
-        private double time = 0;
+
+
+    private static class SpiralComponent extends Component {
+        private double t = 0;
 
         @Override
         public void onUpdate(double tpf) {
-            time += tpf * 50;
+            t += tpf;
 
-            double phase = (time % 400);
-            double x = 0, y = 0;
+            double radius = t * 50;
+            double angle = t * 2 * Math.PI;
 
-            if (phase < 100)
-                x = phase;
-            else if (phase < 200)
-                x = 100;
-            else if (phase < 300)
-                x = 300 - phase;
-            else
-                x = 0;
+            double x = Math.cos(angle) * radius;
+            double y = t * 100;
 
-            if (phase < 100)
-                y = 0;
-            else if (phase < 200)
-                y = phase - 100;
-            else if (phase < 300)
-                y = 100;
-            else
-                y = 400 - phase;
 
-            entity.setPosition(getAppWidth() / 2 + x, getAppHeight() / 2 + y);
+            entity.setPosition(getAppWidth() / 2.0 + x, y);
         }
     }
 }

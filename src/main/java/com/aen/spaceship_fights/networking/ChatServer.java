@@ -15,6 +15,8 @@ public class ChatServer {
     private static Set<PrintWriter> clientWriters = new HashSet<>();
     private static Map<String, PrintWriter> userWriterMap = new ConcurrentHashMap<>();
     private static Map<String, BufferedReader> userReaderMap = new ConcurrentHashMap<>();
+    private static Map<String, Set<String>> friendsMap = new ConcurrentHashMap<>();
+
 
     private static ObservableList<String> activeUsers = FXCollections.observableArrayList();
 
@@ -66,6 +68,13 @@ public class ChatServer {
                         String receiver = parts[1];
                         String sender = parts[2];
                         PrintWriter writer = userWriterMap.get(receiver);
+
+                        friendsMap.computeIfAbsent(sender, k -> ConcurrentHashMap.newKeySet()).add(receiver);
+                        friendsMap.computeIfAbsent(receiver, k -> ConcurrentHashMap.newKeySet()).add(sender);
+                        //add sender to own list of friends to update the ui
+                        friendsMap.computeIfAbsent(sender, k -> ConcurrentHashMap.newKeySet()).add(sender);
+                        friendsMap.computeIfAbsent(receiver, k -> ConcurrentHashMap.newKeySet()).add(receiver);
+
                         if(writer != null) {
                             writer.println("INVITATION:" + sender);
                         }
@@ -89,7 +98,7 @@ public class ChatServer {
                         writer.println("SCORE:" + parts[2]);
                     }
                 }else{
-                    broadcast(message);
+                    broadcast(username, message);
                 }
 
             }
@@ -103,9 +112,12 @@ public class ChatServer {
     }
 
 
-    private static void broadcast(String message) {
-        synchronized (clientWriters) {
-            for (PrintWriter writer : clientWriters) {
+    private static void broadcast(String sender, String message) {
+        Set<String> friends = friendsMap.getOrDefault(sender, Collections.emptySet());
+
+        for (String friend : friends) {
+            PrintWriter writer = userWriterMap.get(friend);
+            if (writer != null) {
                 writer.println(message);
             }
         }

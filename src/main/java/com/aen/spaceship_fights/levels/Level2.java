@@ -30,9 +30,9 @@ public class Level2 extends GameLevel{
         @Override
         public void onUpdate(double tpf) {
             t += tpf;
-            double x = Math.sin(t * 3) * 150;
-            double y = t * 100;
-            entity.setPosition(getAppWidth() / 2 + x, y);
+            double x = Math.sin(t * 3) * 300;
+            double y = Math.min(t * 50, 500);
+            entity.setPosition(getAppWidth() / 2.0 + x, y);
         }
     }
 }

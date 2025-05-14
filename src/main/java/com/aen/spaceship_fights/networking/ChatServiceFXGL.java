@@ -239,7 +239,7 @@ public class ChatServiceFXGL extends VBox {
                     while ((message = in.readLine()) != null) {
                         String finalMessage = message;
                         String usersArrayStart = "USERS:";
-                        String opponentScoreStart = "SCORE:"; //TODO: make it more safe and unique
+                        String opponentScoreStart = "SCORE:";
                         String invitationMessageStart = "INVITATION:";
                         String invitationAccepted = "I_ACCEPTED:";
                         if(finalMessage.startsWith(usersArrayStart)) {

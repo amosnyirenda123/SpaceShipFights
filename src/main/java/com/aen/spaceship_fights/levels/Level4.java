@@ -28,8 +28,8 @@ public class Level4 extends GameLevel{
         @Override
         public void onUpdate(double tpf) {
             t += tpf;
-            double x = t * 100;
-            double y = Math.sin(t * 3) * 100 + t * 100;
+            double x = Math.min(t * 100, 1100);
+            double y = Math.min(Math.sin(t * 3) * 100 + t * 100, 600);
             entity.setPosition(x, y);
         }
     }

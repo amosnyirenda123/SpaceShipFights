@@ -14,7 +14,7 @@ public class Level5 extends GameLevel{
         for (int y = 0; y < ENEMY_ROWS; y++) {
             for (int x = 0; x < ENEMIES_PER_ROW; x++) {
                 getGameTimer().runOnceAfter(() -> {
-                    Entity enemy = spawnEnemy(getAppWidth() / 2.0, getAppHeight() / 2.0);
+                    Entity enemy = spawnEnemy(getAppWidth() / 10.0, getAppHeight() / 10.0);
                     enemy.addComponent(new EllipseComponent());
                 }, Duration.seconds(t));
                 t += 0.25;
@@ -29,10 +29,10 @@ public class Level5 extends GameLevel{
         public void onUpdate(double tpf) {
             angle += tpf * 2;
 
-            double x = Math.cos(angle) * 200;
-            double y = Math.sin(angle) * 100 + angle * 10;
+            double x = Math.cos(angle) * 400;
+            double y = Math.min(Math.sin(angle) * 100 + angle * 10, 200);
 
-            entity.setPosition(getAppWidth() / 2 + x, getAppHeight() / 2 + y);
+            entity.setPosition(getAppWidth() / 1.5 + x, getAppHeight() / 1.5 + y);
         }
     }
 

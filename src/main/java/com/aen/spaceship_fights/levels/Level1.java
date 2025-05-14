@@ -35,7 +35,7 @@ public class Level1 extends GameLevel {
 
     private static class SpiralComponent extends Component {
         private double angle = 0;
-        private double radius = 200;
+        private double radius = 400;
 
         @Override
         public void onUpdate(double tpf) {
@@ -45,7 +45,8 @@ public class Level1 extends GameLevel {
             double x = Math.cos(angle) * radius;
             double y = Math.sin(angle) * radius;
 
-            entity.setPosition(getAppWidth() / 2 + x, getAppHeight() / 2 + y);
+            entity.setPosition(getAppWidth() / 2.0 + x, getAppHeight() / 2.0 + y);
         }
     }
+
 }
